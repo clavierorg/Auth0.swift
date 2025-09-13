@@ -48,8 +48,8 @@ public let defaultScope = "openid profile email"
    - session:  `URLSession` instance used for networking. Defaults to `URLSession.shared`.
  - Returns: Authentication API client.
  */
-public func authentication(clientId: String, domain: String, session: URLSession = .shared) -> Authentication {
-    return Auth0Authentication(clientId: clientId, url: .httpsURL(from: domain), session: session)
+public func authentication(clientId: String, domain: String, apiClientId: String? = nil, session: URLSession = .shared) -> Authentication {
+    return Auth0Authentication(clientId: clientId, apiClientId: apiClientId, url: .httpsURL(from: domain), session: session)
 }
 
 /**
@@ -84,9 +84,9 @@ public func authentication(clientId: String, domain: String, session: URLSession
  - Returns: Authentication API client.
  - Warning: Calling this method without a valid `Auth0.plist` file will crash your application.
  */
-public func authentication(session: URLSession = .shared, bundle: Bundle = .main) -> Authentication {
+public func authentication(apiClientId: String? = nil, session: URLSession = .shared, bundle: Bundle = .main) -> Authentication {
     let values = plistValues(bundle: bundle)!
-    return authentication(clientId: values.clientId, domain: values.domain, session: session)
+    return authentication(clientId: values.clientId, apiClientId: apiClientId, domain: values.domain, session: session)
 }
 
 /**
