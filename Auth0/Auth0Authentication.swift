@@ -490,7 +490,7 @@ struct Auth0Authentication: Authentication {
     }
 
     func jwks() -> Request<JWKS, AuthenticationError> {
-        let jwks = URL(string: ".well-known/jwks.json", relativeTo: self.url)!
+        let jwks = URL(string: "oauth2/jwks", relativeTo: self.url)!
         return Request(session: session,
                        url: jwks,
                        method: "GET",
