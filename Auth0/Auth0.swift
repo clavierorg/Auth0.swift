@@ -190,9 +190,9 @@ public func users(token: String, domain: String, session: URLSession = .shared) 
  - Returns: Web Auth client.
  - Warning: Calling this method without a valid `Auth0.plist` file will crash your application.
  */
-public func webAuth(session: URLSession = .shared, bundle: Bundle = Bundle.main) -> WebAuth {
+public func webAuth(apiClientId: String? = nil, session: URLSession = .shared, bundle: Bundle = Bundle.main) -> WebAuth {
     let values = plistValues(bundle: bundle)!
-    return webAuth(clientId: values.clientId, domain: values.domain, session: session)
+    return webAuth(clientId: values.clientId, domain: values.domain, apiClientId: apiClientId, session: session)
 }
 
 /**
@@ -211,8 +211,8 @@ public func webAuth(session: URLSession = .shared, bundle: Bundle = Bundle.main)
    - session:  `URLSession` instance used for networking. Defaults to `URLSession.shared`.
  - Returns: Web Auth client.
  */
-public func webAuth(clientId: String, domain: String, session: URLSession = .shared) -> WebAuth {
-    return Auth0WebAuth(clientId: clientId, url: .httpsURL(from: domain), session: session)
+public func webAuth(clientId: String, domain: String, apiClientId: String? = nil, session: URLSession = .shared) -> WebAuth {
+    return Auth0WebAuth(clientId: clientId, url: .httpsURL(from: domain), apiClientId: apiClientId, session: session)
 }
 #endif
 
