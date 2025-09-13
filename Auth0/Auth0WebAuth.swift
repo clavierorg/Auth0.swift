@@ -5,6 +5,7 @@ import Combine
 final class Auth0WebAuth: WebAuth {
 
     let clientId: String
+    let apiClientId: String
     let url: URL
     let session: URLSession
     let storage: TransactionStore
@@ -63,12 +64,14 @@ final class Auth0WebAuth: WebAuth {
 
     init(clientId: String,
          url: URL,
+         apiClientId: String? = nil,
          session: URLSession = URLSession.shared,
          storage: TransactionStore = TransactionStore.shared,
          telemetry: Telemetry = Telemetry(),
          barrier: Barrier = QueueBarrier.shared) {
         self.clientId = clientId
         self.url = url
+        self.apiClientId = apiClientId ?? clientId
         self.session = session
         self.storage = storage
         self.telemetry = telemetry
@@ -314,6 +317,7 @@ final class Auth0WebAuth: WebAuth {
     private func handler(_ redirectURL: URL) -> OAuth2Grant {
         var authentication = Auth0Authentication(clientId: self.clientId,
                                                  url: self.url,
+                                                 apiClientId: self.apiClientId,
                                                  session: self.session,
                                                  telemetry: self.telemetry)
         authentication.dpop = self.dpop
