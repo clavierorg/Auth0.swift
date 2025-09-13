@@ -7,6 +7,7 @@ import Foundation
 struct Auth0Authentication: Authentication {
 
     let clientId: String
+    let apiClientId: String
     let url: URL
     var telemetry: Telemetry
     var logger: Logger?
@@ -14,8 +15,9 @@ struct Auth0Authentication: Authentication {
 
     let session: URLSession
 
-    init(clientId: String, url: URL, session: URLSession = URLSession.shared, telemetry: Telemetry = Telemetry()) {
+    init(clientId: String, url: URL, apiClientId: String? = nil, session: URLSession = URLSession.shared, telemetry: Telemetry = Telemetry()) {
         self.clientId = clientId
+        self.apiClientId = apiClientId ?? clientId
         self.url = url
         self.session = session
         self.telemetry = telemetry
@@ -490,7 +492,7 @@ struct Auth0Authentication: Authentication {
     }
 
     func jwks() -> Request<JWKS, AuthenticationError> {
-        let jwks = URL(string: ".well-known/jwks.json", relativeTo: self.url)!
+        let jwks = URL("https://api.workos.com/sso/jwks/\(self.apiClientId)")!
         return Request(session: session,
                        url: jwks,
                        method: "GET",
