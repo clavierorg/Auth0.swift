@@ -73,7 +73,9 @@ final class Auth0WebAuth: WebAuth {
         self.storage = storage
         self.telemetry = telemetry
         self.barrier = barrier
-        self.issuer = url.absoluteString
+        var iss = url.absoluteString
+        iss.removeLast()
+        self.issuer = iss
     }
 
     func connection(_ connection: String) -> Self {
