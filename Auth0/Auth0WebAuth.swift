@@ -250,7 +250,7 @@ final class Auth0WebAuth: WebAuth {
     func buildAuthorizeURL(withRedirectURL redirectURL: URL,
                            defaults: [String: String],
                            state: String?) throws(WebAuthError) -> URL {
-        guard let authorize = self.overrideAuthorizeURL ?? URL(string: "authorize", relativeTo: self.url),
+        guard let authorize = self.overrideAuthorizeURL ?? URL(string: "/oauth2/authorize", relativeTo: self.url),
               var components = URLComponents(url: authorize, resolvingAgainstBaseURL: true) else {
             let message = "Unable to build authorize URL with base URL: \(self.url.absoluteString)."
             throw WebAuthError(code: .unknown(message))
