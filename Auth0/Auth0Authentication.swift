@@ -30,7 +30,7 @@ struct Auth0Authentication: Authentication {
     }
 
     func login(usernameOrEmail username: String, password: String, realmOrConnection realm: String, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "oauth2/token", relativeTo: self.url)!
+        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
             "username": username,
@@ -53,7 +53,7 @@ struct Auth0Authentication: Authentication {
     }
 
     func loginDefaultDirectory(withUsername username: String, password: String, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "oauth2/token", relativeTo: self.url)!
+        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
             "username": username,
@@ -75,7 +75,7 @@ struct Auth0Authentication: Authentication {
     }
 
     func login(withOTP otp: String, mfaToken: String) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "oauth2/token", relativeTo: self.url)!
+        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         let payload: [String: Any] = [
             "otp": otp,
@@ -95,7 +95,7 @@ struct Auth0Authentication: Authentication {
     }
 
     func login(withOOBCode oobCode: String, mfaToken: String, bindingCode: String?) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "oauth2/token", relativeTo: self.url)!
+        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
             "oob_code": oobCode,
@@ -119,7 +119,7 @@ struct Auth0Authentication: Authentication {
     }
 
     func login(withRecoveryCode recoveryCode: String, mfaToken: String) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "oauth2/token", relativeTo: self.url)!
+        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         let payload: [String: Any] = [
             "recovery_code": recoveryCode,
@@ -231,7 +231,7 @@ struct Auth0Authentication: Authentication {
                audience: String?,
                scope: String,
                organization: String?) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "oauth2/token", relativeTo: self.url)!
+        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
         let id = passkey.credentialID.encodeBase64URLSafe()
 
         var authenticatorResponse: [String: Any] = [
@@ -294,7 +294,7 @@ struct Auth0Authentication: Authentication {
                audience: String?,
                scope: String,
                organization: String?) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "oauth2/token", relativeTo: self.url)!
+        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
         let id = passkey.credentialID.encodeBase64URLSafe()
 
         var authenticatorResponse: [String: Any] = [
@@ -447,7 +447,7 @@ struct Auth0Authentication: Authentication {
     }
 
     func renew(withRefreshToken refreshToken: String, audience: String? = nil, scope: String? = nil) -> Request<Credentials, AuthenticationError> {
-        let oauthToken = URL(string: "oauth2/token", relativeTo: self.url)!
+        let oauthToken = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
             "refresh_token": refreshToken,
@@ -513,7 +513,7 @@ struct Auth0Authentication: Authentication {
 private extension Auth0Authentication {
 
     func login(username: String, otp: String, realm: String, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "oauth2/token", relativeTo: self.url)!
+        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
             "username": username,
@@ -544,7 +544,7 @@ private extension Auth0Authentication {
         parameters["audience"] = audience
         parameters["scope"] = includeRequiredScope(in: scope)
 
-        let token = URL(string: "oauth2/token", relativeTo: self.url)!
+        let token = URL(string: "https://api.workos.com/user_management/authenticate")!
         return Request(session: session,
                        url: token,
                        method: "POST",
@@ -556,7 +556,7 @@ private extension Auth0Authentication {
     }
 
     func token<T: Codable>() -> Request<T, AuthenticationError> {
-        let token = URL(string: "oauth2/token", relativeTo: self.url)!
+        let token = URL(string: "https://api.workos.com/user_management/authenticate")!
         let payload: [String: Any] = ["client_id": self.clientId]
 
         return Request(session: session,

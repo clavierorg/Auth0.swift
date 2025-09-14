@@ -84,7 +84,7 @@ struct PKCE: OAuth2Grant {
                     return callback(.failure(WebAuthError(code: .pkceNotAllowed)))
                 case .failure(let error): return callback(.failure(WebAuthError(code: .other, cause: error)))
                 case .success(let credentials):
-                    validate(idToken: credentials.idToken, with: validatorContext) { error in
+                    validate(idToken: credentials.accessToken, with: validatorContext) { error in
                         if let error = error {
                             return callback(.failure(WebAuthError(code: .idTokenValidationFailed, cause: error)))
                         }

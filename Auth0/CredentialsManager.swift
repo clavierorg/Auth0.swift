@@ -618,7 +618,7 @@ public struct CredentialsManager {
         return self.storage.setEntry(data, forKey: audience)
     }
 
-    private func retrieveCredentials() -> Credentials? {
+    public func retrieveCredentials() -> Credentials? {
         guard let data = self.storage.getEntry(forKey: self.storeKey) else { return nil }
         return try? NSKeyedUnarchiver.unarchivedObject(ofClass: Credentials.self, from: data)
     }

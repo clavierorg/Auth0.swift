@@ -73,9 +73,7 @@ final class Auth0WebAuth: WebAuth {
         self.storage = storage
         self.telemetry = telemetry
         self.barrier = barrier
-        var iss = url.absoluteString
-        iss.removeLast()
-        self.issuer = iss
+        self.issuer = "https://api.workos.com/user_management/\(clientId)"
     }
 
     func connection(_ connection: String) -> Self {
@@ -252,7 +250,7 @@ final class Auth0WebAuth: WebAuth {
     func buildAuthorizeURL(withRedirectURL redirectURL: URL,
                            defaults: [String: String],
                            state: String?) throws(WebAuthError) -> URL {
-        guard let authorize = self.overrideAuthorizeURL ?? URL(string: "/oauth2/authorize", relativeTo: self.url),
+        guard let authorize = self.overrideAuthorizeURL ?? URL(string: "https://api.workos.com/user_management/authorize"),
               var components = URLComponents(url: authorize, resolvingAgainstBaseURL: true) else {
             let message = "Unable to build authorize URL with base URL: \(self.url.absoluteString)."
             throw WebAuthError(code: .unknown(message))
@@ -289,6 +287,8 @@ final class Auth0WebAuth: WebAuth {
         } catch {
             throw WebAuthError(code: .other, cause: error)
         }
+
+        self.parameters["provider"] = "authkit"
 
         self.parameters.forEach { entries[$0] = $1 }
 
