@@ -14,22 +14,33 @@ struct Auth0Authentication: Authentication {
 
     let session: URLSession
 
-    init(clientId: String, url: URL, session: URLSession = URLSession.shared, telemetry: Telemetry = Telemetry()) {
+    init(
+        clientId: String, url: URL, session: URLSession = URLSession.shared,
+        telemetry: Telemetry = Telemetry()
+    ) {
         self.clientId = clientId
         self.url = url
         self.session = session
         self.telemetry = telemetry
     }
 
-    func login(email: String, code: String, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
+    func login(email: String, code: String, audience: String?, scope: String) -> Request<
+        Credentials, AuthenticationError
+    > {
         return login(username: email, otp: code, realm: "email", audience: audience, scope: scope)
     }
 
-    func login(phoneNumber: String, code: String, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
-        return login(username: phoneNumber, otp: code, realm: "sms", audience: audience, scope: scope)
+    func login(phoneNumber: String, code: String, audience: String?, scope: String) -> Request<
+        Credentials, AuthenticationError
+    > {
+        return login(
+            username: phoneNumber, otp: code, realm: "sms", audience: audience, scope: scope)
     }
 
-    func login(usernameOrEmail username: String, password: String, realmOrConnection realm: String, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
+    func login(
+        usernameOrEmail username: String, password: String, realmOrConnection realm: String,
+        audience: String?, scope: String
+    ) -> Request<Credentials, AuthenticationError> {
         let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
@@ -37,41 +48,45 @@ struct Auth0Authentication: Authentication {
             "password": password,
             "grant_type": "http://auth0.com/oauth/grant-type/password-realm",
             "client_id": self.clientId,
-            "realm": realm
+            "realm": realm,
         ]
         payload["audience"] = audience
         payload["scope"] = includeRequiredScope(in: scope)
 
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
+        return Request(
+            session: session,
+            url: url,
+            method: "POST",
+            handle: authenticationDecodable,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: self.dpop)
     }
 
-    func loginDefaultDirectory(withUsername username: String, password: String, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
+    func loginDefaultDirectory(
+        withUsername username: String, password: String, audience: String?, scope: String
+    ) -> Request<Credentials, AuthenticationError> {
         let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
             "username": username,
             "password": password,
             "grant_type": "password",
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
         payload["audience"] = audience
         payload["scope"] = includeRequiredScope(in: scope)
 
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
+        return Request(
+            session: session,
+            url: url,
+            method: "POST",
+            handle: authenticationDecodable,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: self.dpop)
     }
 
     func login(withOTP otp: String, mfaToken: String) -> Request<Credentials, AuthenticationError> {
@@ -81,68 +96,77 @@ struct Auth0Authentication: Authentication {
             "otp": otp,
             "mfa_token": mfaToken,
             "grant_type": "http://auth0.com/oauth/grant-type/mfa-otp",
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
 
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
+        return Request(
+            session: session,
+            url: url,
+            method: "POST",
+            handle: authenticationDecodable,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: self.dpop)
     }
 
-    func login(withOOBCode oobCode: String, mfaToken: String, bindingCode: String?) -> Request<Credentials, AuthenticationError> {
+    func login(withOOBCode oobCode: String, mfaToken: String, bindingCode: String?) -> Request<
+        Credentials, AuthenticationError
+    > {
         let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
             "oob_code": oobCode,
             "mfa_token": mfaToken,
             "grant_type": "http://auth0.com/oauth/grant-type/mfa-oob",
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
 
         if let bindingCode = bindingCode {
             payload["binding_code"] = bindingCode
         }
 
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
+        return Request(
+            session: session,
+            url: url,
+            method: "POST",
+            handle: authenticationDecodable,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: self.dpop)
     }
 
-    func login(withRecoveryCode recoveryCode: String, mfaToken: String) -> Request<Credentials, AuthenticationError> {
+    func login(withRecoveryCode recoveryCode: String, mfaToken: String) -> Request<
+        Credentials, AuthenticationError
+    > {
         let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         let payload: [String: Any] = [
             "recovery_code": recoveryCode,
             "mfa_token": mfaToken,
             "grant_type": "http://auth0.com/oauth/grant-type/mfa-recovery-code",
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
 
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
+        return Request(
+            session: session,
+            url: url,
+            method: "POST",
+            handle: authenticationDecodable,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: self.dpop)
     }
 
-    func multifactorChallenge(mfaToken: String, types: [String]?, authenticatorId: String?) -> Request<Challenge, AuthenticationError> {
+    func multifactorChallenge(mfaToken: String, types: [String]?, authenticatorId: String?)
+        -> Request<Challenge, AuthenticationError>
+    {
         let url = URL(string: "mfa/challenge", relativeTo: self.url)!
         var payload: [String: String] = [
             "mfa_token": mfaToken,
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
 
         if let types = types {
@@ -153,57 +177,74 @@ struct Auth0Authentication: Authentication {
             payload["authenticator_id"] = authenticatorId
         }
 
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry)
+        return Request(
+            session: session,
+            url: url,
+            method: "POST",
+            handle: authenticationDecodable,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry)
     }
 
-    func login(appleAuthorizationCode authorizationCode: String, fullName: PersonNameComponents?, profile: [String: Any]?, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
+    func login(
+        appleAuthorizationCode authorizationCode: String, fullName: PersonNameComponents?,
+        profile: [String: Any]?, audience: String?, scope: String
+    ) -> Request<Credentials, AuthenticationError> {
         var parameters: [String: Any] = [:]
         var profile: [String: Any] = profile ?? [:]
 
         if let fullName = fullName {
-            let name = ["firstName": fullName.givenName, "lastName": fullName.familyName].compactMapValues { $0 }
+            let name = ["firstName": fullName.givenName, "lastName": fullName.familyName]
+                .compactMapValues { $0 }
             if !name.isEmpty {
                 profile["name"] = name
             }
         }
 
-        if !profile.isEmpty, let jsonData = try? JSONSerialization.data(withJSONObject: profile, options: []),
-            let json = String(data: jsonData, encoding: .utf8) {
+        if !profile.isEmpty,
+            let jsonData = try? JSONSerialization.data(withJSONObject: profile, options: []),
+            let json = String(data: jsonData, encoding: .utf8)
+        {
             parameters["user_profile"] = json
         }
 
-        return self.tokenExchange(subjectToken: authorizationCode,
-                                  subjectTokenType: "http://auth0.com/oauth2/token-type/apple-authz-code",
-                                  scope: scope,
-                                  audience: audience,
-                                  parameters: parameters)
+        return self.tokenExchange(
+            subjectToken: authorizationCode,
+            subjectTokenType: "http://auth0.com/oauth2/token-type/apple-authz-code",
+            scope: scope,
+            audience: audience,
+            parameters: parameters)
     }
 
-    func login(facebookSessionAccessToken sessionAccessToken: String, profile: [String: Any], audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
+    func login(
+        facebookSessionAccessToken sessionAccessToken: String, profile: [String: Any],
+        audience: String?, scope: String
+    ) -> Request<Credentials, AuthenticationError> {
         var parameters: [String: String] = [:]
         if let jsonData = try? JSONSerialization.data(withJSONObject: profile, options: []),
-            let json = String(data: jsonData, encoding: .utf8) {
+            let json = String(data: jsonData, encoding: .utf8)
+        {
             parameters["user_profile"] = json
         }
-        return self.tokenExchange(subjectToken: sessionAccessToken,
-                                  subjectTokenType: "http://auth0.com/oauth2/token-type/facebook-info-session-access-token",
-                                  scope: scope,
-                                  audience: audience,
-                                  parameters: parameters)
+        return self.tokenExchange(
+            subjectToken: sessionAccessToken,
+            subjectTokenType:
+                "http://auth0.com/oauth2/token-type/facebook-info-session-access-token",
+            scope: scope,
+            audience: audience,
+            parameters: parameters)
     }
 
-    func signup(email: String, username: String? = nil, password: String, connection: String, userMetadata: [String: Any]? = nil, rootAttributes: [String: Any]? = nil) -> Request<DatabaseUser, AuthenticationError> {
+    func signup(
+        email: String, username: String? = nil, password: String, connection: String,
+        userMetadata: [String: Any]? = nil, rootAttributes: [String: Any]? = nil
+    ) -> Request<DatabaseUser, AuthenticationError> {
         var payload: [String: Any] = [
             "email": email,
             "password": password,
             "connection": connection,
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
         payload["username"] = username
         payload["user_metadata"] = userMetadata
@@ -214,245 +255,274 @@ struct Auth0Authentication: Authentication {
         }
 
         let signup = URL(string: "dbconnections/signup", relativeTo: self.url)!
-        return Request(session: session,
-                       url: signup,
-                       method: "POST",
-                       handle: authenticationDatabaseUser,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry)
+        return Request(
+            session: session,
+            url: signup,
+            method: "POST",
+            handle: authenticationDatabaseUser,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry)
     }
 
     #if PASSKEYS_PLATFORM
-    @available(iOS 16.6, macOS 13.5, visionOS 1.0, *)
-    func login(passkey: any LoginPasskey,
-               challenge: PasskeyLoginChallenge,
-               connection: String?,
-               audience: String?,
-               scope: String,
-               organization: String?) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
-        let id = passkey.credentialID.encodeBase64URLSafe()
+        @available(iOS 16.6, macOS 13.5, visionOS 1.0, *)
+        func login(
+            passkey: any LoginPasskey,
+            challenge: PasskeyLoginChallenge,
+            connection: String?,
+            audience: String?,
+            scope: String,
+            organization: String?
+        ) -> Request<Credentials, AuthenticationError> {
+            let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+            let id = passkey.credentialID.encodeBase64URLSafe()
 
-        var authenticatorResponse: [String: Any] = [
-            "id": id,
-            "rawId": id,
-            "type": "public-key",
-            "response": [
-                "clientDataJSON": passkey.rawClientDataJSON.encodeBase64URLSafe(),
-                "authenticatorData": passkey.rawAuthenticatorData!.encodeBase64URLSafe(),
-                "signature": passkey.signature!.encodeBase64URLSafe(),
-                "userHandle": passkey.userID.encodeBase64URLSafe()
+            var authenticatorResponse: [String: Any] = [
+                "id": id,
+                "rawId": id,
+                "type": "public-key",
+                "response": [
+                    "clientDataJSON": passkey.rawClientDataJSON.encodeBase64URLSafe(),
+                    "authenticatorData": passkey.rawAuthenticatorData!.encodeBase64URLSafe(),
+                    "signature": passkey.signature!.encodeBase64URLSafe(),
+                    "userHandle": passkey.userID.encodeBase64URLSafe(),
+                ],
             ]
-        ]
 
-        authenticatorResponse["authenticatorAttachment"] = passkey.attachment.stringValue
+            authenticatorResponse["authenticatorAttachment"] = passkey.attachment.stringValue
 
-        var payload: [String: Any] = [
-            "client_id": self.clientId,
-            "grant_type": "urn:okta:params:oauth:grant-type:webauthn",
-            "auth_session": challenge.authenticationSession,
-            "authn_response": authenticatorResponse
-        ]
-        payload["realm"] = connection
-        payload["audience"] = audience
-        payload["scope"] = includeRequiredScope(in: scope)
-        payload["organization"] = organization
-
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
-    }
-
-    @available(iOS 16.6, macOS 13.5, visionOS 1.0, *)
-    func passkeyLoginChallenge(connection: String?,
-                               organization: String?) -> Request<PasskeyLoginChallenge, AuthenticationError> {
-        let url = URL(string: "passkey/challenge", relativeTo: self.url)!
-
-        var payload: [String: String] = ["client_id": self.clientId]
-        payload["realm"] = connection
-        payload["organization"] = organization
-
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry)
-    }
-
-    @available(iOS 16.6, macOS 13.5, visionOS 1.0, *)
-    func login(passkey: any SignupPasskey,
-               challenge: PasskeySignupChallenge,
-               connection: String?,
-               audience: String?,
-               scope: String,
-               organization: String?) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
-        let id = passkey.credentialID.encodeBase64URLSafe()
-
-        var authenticatorResponse: [String: Any] = [
-            "id": id,
-            "rawId": id,
-            "type": "public-key",
-            "response": [
-                "clientDataJSON": passkey.rawClientDataJSON.encodeBase64URLSafe(),
-                "attestationObject": passkey.rawAttestationObject!.encodeBase64URLSafe()
+            var payload: [String: Any] = [
+                "client_id": self.clientId,
+                "grant_type": "urn:okta:params:oauth:grant-type:webauthn",
+                "auth_session": challenge.authenticationSession,
+                "authn_response": authenticatorResponse,
             ]
-        ]
+            payload["realm"] = connection
+            payload["audience"] = audience
+            payload["scope"] = includeRequiredScope(in: scope)
+            payload["organization"] = organization
 
-        authenticatorResponse["authenticatorAttachment"] = passkey.attachment.stringValue
+            return Request(
+                session: session,
+                url: url,
+                method: "POST",
+                handle: authenticationDecodable,
+                parameters: payload,
+                logger: self.logger,
+                telemetry: self.telemetry,
+                dpop: self.dpop)
+        }
 
-        var payload: [String: Any] = [
-            "client_id": self.clientId,
-            "grant_type": "urn:okta:params:oauth:grant-type:webauthn",
-            "auth_session": challenge.authenticationSession,
-            "authn_response": authenticatorResponse
-        ]
+        @available(iOS 16.6, macOS 13.5, visionOS 1.0, *)
+        func passkeyLoginChallenge(
+            connection: String?,
+            organization: String?
+        ) -> Request<PasskeyLoginChallenge, AuthenticationError> {
+            let url = URL(string: "passkey/challenge", relativeTo: self.url)!
 
-        payload["realm"] = connection
-        payload["audience"] = audience
-        payload["scope"] = includeRequiredScope(in: scope)
-        payload["organization"] = organization
+            var payload: [String: String] = ["client_id": self.clientId]
+            payload["realm"] = connection
+            payload["organization"] = organization
 
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
-    }
+            return Request(
+                session: session,
+                url: url,
+                method: "POST",
+                handle: authenticationDecodable,
+                parameters: payload,
+                logger: self.logger,
+                telemetry: self.telemetry)
+        }
 
-    @available(iOS 16.6, macOS 13.5, visionOS 1.0, *)
-    func passkeySignupChallenge(email: String?,
-                                phoneNumber: String?,
-                                username: String?,
-                                name: String?,
-                                connection: String?,
-                                organization: String?) -> Request<PasskeySignupChallenge, AuthenticationError> {
-        let url = URL(string: "passkey/register", relativeTo: self.url)!
+        @available(iOS 16.6, macOS 13.5, visionOS 1.0, *)
+        func login(
+            passkey: any SignupPasskey,
+            challenge: PasskeySignupChallenge,
+            connection: String?,
+            audience: String?,
+            scope: String,
+            organization: String?
+        ) -> Request<Credentials, AuthenticationError> {
+            let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+            let id = passkey.credentialID.encodeBase64URLSafe()
 
-        var userProfile: [String: Any] = [:]
-        userProfile["email"] = email
-        userProfile["phone_number"] = phoneNumber
-        userProfile["username"] = username
-        userProfile["name"] = name
+            var authenticatorResponse: [String: Any] = [
+                "id": id,
+                "rawId": id,
+                "type": "public-key",
+                "response": [
+                    "clientDataJSON": passkey.rawClientDataJSON.encodeBase64URLSafe(),
+                    "attestationObject": passkey.rawAttestationObject!.encodeBase64URLSafe(),
+                ],
+            ]
 
-        var payload: [String: Any] = [
-            "client_id": self.clientId,
-            "user_profile": userProfile
-        ]
-        payload["realm"] = connection
-        payload["organization"] = organization
+            authenticatorResponse["authenticatorAttachment"] = passkey.attachment.stringValue
 
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry)
-    }
+            var payload: [String: Any] = [
+                "client_id": self.clientId,
+                "grant_type": "urn:okta:params:oauth:grant-type:webauthn",
+                "auth_session": challenge.authenticationSession,
+                "authn_response": authenticatorResponse,
+            ]
+
+            payload["realm"] = connection
+            payload["audience"] = audience
+            payload["scope"] = includeRequiredScope(in: scope)
+            payload["organization"] = organization
+
+            return Request(
+                session: session,
+                url: url,
+                method: "POST",
+                handle: authenticationDecodable,
+                parameters: payload,
+                logger: self.logger,
+                telemetry: self.telemetry,
+                dpop: self.dpop)
+        }
+
+        @available(iOS 16.6, macOS 13.5, visionOS 1.0, *)
+        func passkeySignupChallenge(
+            email: String?,
+            phoneNumber: String?,
+            username: String?,
+            name: String?,
+            connection: String?,
+            organization: String?
+        ) -> Request<PasskeySignupChallenge, AuthenticationError> {
+            let url = URL(string: "passkey/register", relativeTo: self.url)!
+
+            var userProfile: [String: Any] = [:]
+            userProfile["email"] = email
+            userProfile["phone_number"] = phoneNumber
+            userProfile["username"] = username
+            userProfile["name"] = name
+
+            var payload: [String: Any] = [
+                "client_id": self.clientId,
+                "user_profile": userProfile,
+            ]
+            payload["realm"] = connection
+            payload["organization"] = organization
+
+            return Request(
+                session: session,
+                url: url,
+                method: "POST",
+                handle: authenticationDecodable,
+                parameters: payload,
+                logger: self.logger,
+                telemetry: self.telemetry)
+        }
     #endif
 
     func resetPassword(email: String, connection: String) -> Request<Void, AuthenticationError> {
         let payload = [
             "email": email,
             "connection": connection,
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
         let resetPassword = URL(string: "dbconnections/change_password", relativeTo: self.url)!
-        return Request(session: session,
-                       url: resetPassword,
-                       method: "POST",
-                       handle: authenticationNoBody,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry)
+        return Request(
+            session: session,
+            url: resetPassword,
+            method: "POST",
+            handle: authenticationNoBody,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry)
     }
 
-    func startPasswordless(email: String, type: PasswordlessType, connection: String) -> Request<Void, AuthenticationError> {
+    func startPasswordless(email: String, type: PasswordlessType, connection: String) -> Request<
+        Void, AuthenticationError
+    > {
         let payload: [String: Any] = [
             "email": email,
             "connection": connection,
             "send": type.rawValue,
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
 
         let start = URL(string: "passwordless/start", relativeTo: self.url)!
-        return Request(session: session,
-                       url: start,
-                       method: "POST",
-                       handle: authenticationNoBody,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry)
+        return Request(
+            session: session,
+            url: start,
+            method: "POST",
+            handle: authenticationNoBody,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry)
     }
 
-    func startPasswordless(phoneNumber: String, type: PasswordlessType, connection: String) -> Request<Void, AuthenticationError> {
+    func startPasswordless(phoneNumber: String, type: PasswordlessType, connection: String)
+        -> Request<Void, AuthenticationError>
+    {
         let payload: [String: Any] = [
             "phone_number": phoneNumber,
             "connection": connection,
             "send": type.rawValue,
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
         let start = URL(string: "passwordless/start", relativeTo: self.url)!
-        return Request(session: session,
-                       url: start,
-                       method: "POST",
-                       handle: authenticationNoBody,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry)
+        return Request(
+            session: session,
+            url: start,
+            method: "POST",
+            handle: authenticationNoBody,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry)
     }
 
-    func userInfo(withAccessToken accessToken: String, tokenType: String) -> Request<UserInfo, AuthenticationError> {
+    func userInfo(withAccessToken accessToken: String, tokenType: String) -> Request<
+        UserInfo, AuthenticationError
+    > {
         let userInfo = URL(string: "userinfo", relativeTo: self.url)!
         let method = "GET"
         let headers = self.baseHeaders(accessToken: accessToken, tokenType: tokenType)
 
-        return Request(session: session,
-                       url: userInfo,
-                       method: method,
-                       handle: authenticationObject,
-                       headers: headers,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: dpop)
+        return Request(
+            session: session,
+            url: userInfo,
+            method: method,
+            handle: authenticationObject,
+            headers: headers,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: dpop)
     }
 
-    func codeExchange(withCode code: String, codeVerifier: String, redirectURI: String) -> Request<Credentials, AuthenticationError> {
+    func codeExchange(withCode code: String, codeVerifier: String, redirectURI: String) -> Request<
+        Credentials, AuthenticationError
+    > {
         return self.token().parameters([
             "code": code,
             "code_verifier": codeVerifier,
             "redirect_uri": redirectURI,
-            "grant_type": "authorization_code"
+            "grant_type": "authorization_code",
         ])
     }
 
-    func ssoExchange(withRefreshToken refreshToken: String) -> Request<SSOCredentials, AuthenticationError> {
+    func ssoExchange(withRefreshToken refreshToken: String) -> Request<
+        SSOCredentials, AuthenticationError
+    > {
         return self.token().parameters([
             "refresh_token": refreshToken,
             "grant_type": "refresh_token",
-            "audience": "urn:\(self.url.host!):session_transfer"
+            "audience": "urn:\(self.url.host!):session_transfer",
         ])
     }
 
-    func renew(withRefreshToken refreshToken: String, audience: String? = nil, scope: String? = nil) -> Request<Credentials, AuthenticationError> {
+    func renew(withRefreshToken refreshToken: String, audience: String? = nil, scope: String? = nil)
+        -> Request<Credentials, AuthenticationError>
+    {
         let oauthToken = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
             "refresh_token": refreshToken,
             "grant_type": "refresh_token",
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
 
         if let audience = audience {
@@ -464,55 +534,63 @@ struct Auth0Authentication: Authentication {
             payload["scope"] = scope
         }
 
-        return Request(session: session,
-                       url: oauthToken,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
+        return Request(
+            session: session,
+            url: oauthToken,
+            method: "POST",
+            handle: workOSCredentialsDecodable,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: self.dpop)
     }
 
     func revoke(refreshToken: String) -> Request<Void, AuthenticationError> {
         let payload: [String: Any] = [
             "token": refreshToken,
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
         let oauthToken = URL(string: "oauth/revoke", relativeTo: self.url)!
-        return Request(session: session,
-                       url: oauthToken,
-                       method: "POST",
-                       handle: authenticationNoBody,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry)
+        return Request(
+            session: session,
+            url: oauthToken,
+            method: "POST",
+            handle: authenticationNoBody,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry)
     }
 
     func jwks() -> Request<JWKS, AuthenticationError> {
         let jwks = URL(string: "oauth2/jwks", relativeTo: self.url)!
-        return Request(session: session,
-                       url: jwks,
-                       method: "GET",
-                       handle: authenticationDecodable,
-                       logger: self.logger,
-                       telemetry: self.telemetry)
+        return Request(
+            session: session,
+            url: jwks,
+            method: "GET",
+            handle: authenticationDecodable,
+            logger: self.logger,
+            telemetry: self.telemetry)
     }
 
-    func customTokenExchange(subjectToken: String, subjectTokenType: String, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
-        return self.tokenExchange(subjectToken: subjectToken,
-                                  subjectTokenType: subjectTokenType,
-                                  scope: scope,
-                                  audience: audience)
+    func customTokenExchange(
+        subjectToken: String, subjectTokenType: String, audience: String?, scope: String
+    ) -> Request<Credentials, AuthenticationError> {
+        return self.tokenExchange(
+            subjectToken: subjectToken,
+            subjectTokenType: subjectTokenType,
+            scope: scope,
+            audience: audience)
     }
 
 }
 
 // MARK: - Private Methods
 
-private extension Auth0Authentication {
+extension Auth0Authentication {
 
-    func login(username: String, otp: String, realm: String, audience: String?, scope: String) -> Request<Credentials, AuthenticationError> {
+    fileprivate func login(
+        username: String, otp: String, realm: String, audience: String?, scope: String
+    ) -> Request<Credentials, AuthenticationError> {
         let url = URL(string: "https://api.workos.com/user_management/authenticate")!
 
         var payload: [String: Any] = [
@@ -520,22 +598,26 @@ private extension Auth0Authentication {
             "otp": otp,
             "realm": realm,
             "grant_type": "http://auth0.com/oauth/grant-type/passwordless/otp",
-            "client_id": self.clientId
+            "client_id": self.clientId,
         ]
         payload["audience"] = audience
         payload["scope"] = includeRequiredScope(in: scope)
 
-        return Request(session: session,
-                       url: url,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
+        return Request(
+            session: session,
+            url: url,
+            method: "POST",
+            handle: authenticationDecodable,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: self.dpop)
     }
 
-    func tokenExchange(subjectToken: String, subjectTokenType: String, scope: String, audience: String?, parameters: [String: Any] = [:]) -> Request<Credentials, AuthenticationError> {
+    fileprivate func tokenExchange(
+        subjectToken: String, subjectTokenType: String, scope: String, audience: String?,
+        parameters: [String: Any] = [:]
+    ) -> Request<Credentials, AuthenticationError> {
         var parameters: [String: Any] = parameters
         parameters["client_id"] = self.clientId
         parameters["grant_type"] = "urn:ietf:params:oauth:grant-type:token-exchange"
@@ -545,28 +627,30 @@ private extension Auth0Authentication {
         parameters["scope"] = includeRequiredScope(in: scope)
 
         let token = URL(string: "https://api.workos.com/user_management/authenticate")!
-        return Request(session: session,
-                       url: token,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: parameters,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: dpop)
+        return Request(
+            session: session,
+            url: token,
+            method: "POST",
+            handle: authenticationDecodable,
+            parameters: parameters,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: dpop)
     }
 
-    func token<T: Codable>() -> Request<T, AuthenticationError> {
+    fileprivate func token<T: Codable>() -> Request<T, AuthenticationError> {
         let token = URL(string: "https://api.workos.com/user_management/authenticate")!
         let payload: [String: Any] = ["client_id": self.clientId]
 
-        return Request(session: session,
-                       url: token,
-                       method: "POST",
-                       handle: authenticationDecodable,
-                       parameters: payload,
-                       logger: self.logger,
-                       telemetry: self.telemetry,
-                       dpop: self.dpop)
+        return Request(
+            session: session,
+            url: token,
+            method: "POST",
+            handle: authenticationDecodable,
+            parameters: payload,
+            logger: self.logger,
+            telemetry: self.telemetry,
+            dpop: self.dpop)
     }
 
 }
