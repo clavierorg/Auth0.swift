@@ -9,7 +9,7 @@ public struct Telemetry {
     static let EnvironmentKey = "env"
     static let LibraryName = "Auth0.swift"
 
-    var enabled: Bool = true
+    var enabled: Bool = false
 
     var info: String?
 
