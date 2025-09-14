@@ -30,7 +30,7 @@ public typealias CredentialsManagerResult<T> = Result<T, CredentialsManagerError
 /**
  Default scope value used across Auth0.swift. Equals to `openid profile email`.
  */
-public let defaultScope = "openid profile email"
+public let defaultScope = "openid profile email offline_access"
 
 /**
  [Authentication API](https://auth0.com/docs/api/authentication) client to authenticate a user with Database, Social,
