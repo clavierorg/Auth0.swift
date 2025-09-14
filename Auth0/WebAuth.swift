@@ -329,7 +329,7 @@ public protocol WebAuth: SenderConstraining, Trackable, Loggable {
 
      - [Logout](https://auth0.com/docs/authenticate/login/logout)
      */
-    func clearSession(federated: Bool, callback: @escaping (WebAuthResult<Void>) -> Void)
+    func clearSession(sessionId: String, callback: @escaping (WebAuthResult<Void>) -> Void)
 
     /**
      Removes the Auth0 session and optionally removes the identity provider (IdP) session.
@@ -373,7 +373,7 @@ public protocol WebAuth: SenderConstraining, Trackable, Loggable {
 
      - [Logout](https://auth0.com/docs/authenticate/login/logout)
      */
-    func clearSession(federated: Bool) -> AnyPublisher<Void, WebAuthError>
+    func clearSession(sessionId: String) -> AnyPublisher<Void, WebAuthError>
 
     #if canImport(_Concurrency)
     /**
@@ -406,24 +406,24 @@ public protocol WebAuth: SenderConstraining, Trackable, Loggable {
 
      - [Logout](https://auth0.com/docs/authenticate/login/logout)
      */
-    func clearSession(federated: Bool) async throws
+    func clearSession(sessionId: String) async throws
     #endif
 
 }
 
 public extension WebAuth {
 
-    func clearSession(federated: Bool = false, callback: @escaping (WebAuthResult<Void>) -> Void) {
-        self.clearSession(federated: federated, callback: callback)
+    func clearSession(sessionId: String, callback: @escaping (WebAuthResult<Void>) -> Void) {
+        self.clearSession(sessionId: sessionId, callback: callback)
     }
 
-    func clearSession(federated: Bool = false) -> AnyPublisher<Void, WebAuthError> {
-        return self.clearSession(federated: federated)
+    func clearSession(sessionId: String) -> AnyPublisher<Void, WebAuthError> {
+        return self.clearSession(sessionId: sessionId)
     }
 
     #if canImport(_Concurrency)
-    func clearSession(federated: Bool = false) async throws {
-        return try await self.clearSession(federated: federated)
+    func clearSession(sessionId: String) async throws {
+        return try await self.clearSession(sessionId: sessionId)
     }
     #endif
 

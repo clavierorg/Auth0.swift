@@ -218,19 +218,18 @@ final class Auth0WebAuth: WebAuth {
         logger?.trace(url: authorizeURL, source: String(describing: userAgent.self))
     }
 
-    func clearSession(federated: Bool, callback: @escaping (WebAuthResult<Void>) -> Void) {
+    func clearSession(sessionId: String, callback: @escaping (WebAuthResult<Void>) -> Void) {
         guard barrier.raise() else {
             return callback(.failure(WebAuthError(code: .transactionActiveAlready)))
         }
 
-        let endpoint = federated ?
-            URL(string: "v2/logout?federated", relativeTo: self.url)! :
-            URL(string: "v2/logout", relativeTo: self.url)!
+        let endpoint = URL(string: "https://api.workos.com/user_management/sessions/logout")!
+        let sessionId = URLQueryItem(name: "session_id", value: sessionId)
         let returnTo = URLQueryItem(name: "returnTo", value: self.redirectURL?.absoluteString)
         let clientId = URLQueryItem(name: "client_id", value: self.clientId)
         var components = URLComponents(url: endpoint, resolvingAgainstBaseURL: true)
         let queryItems = components?.queryItems ?? []
-        components?.queryItems = queryItems + [returnTo, clientId]
+        components?.queryItems = queryItems + [returnTo, clientId, sessionId]
 
         guard let logoutURL = components?.url, let redirectURL = self.redirectURL else {
             return callback(.failure(WebAuthError(code: .noBundleIdentifier)))
@@ -339,10 +338,10 @@ extension Auth0WebAuth {
         return Deferred { Future(self.start) }.eraseToAnyPublisher()
     }
 
-    public func clearSession(federated: Bool) -> AnyPublisher<Void, WebAuthError> {
+    public func clearSession(sessionId: String) -> AnyPublisher<Void, WebAuthError> {
         return Deferred {
             Future { callback in
-                self.clearSession(federated: federated) { result in
+                self.clearSession(sessionId: sessionId) { result in
                     callback(result)
                 }
             }
@@ -366,10 +365,10 @@ extension Auth0WebAuth {
         }
     }
 
-    func clearSession(federated: Bool) async throws {
+    func clearSession(sessionId: String) async throws {
         return try await withCheckedThrowingContinuation { continuation in
             Task { @MainActor in
-                self.clearSession(federated: federated) { result in
+                self.clearSession(sessionId: sessionId) { result in
                     continuation.resume(with: result)
                 }
             }
