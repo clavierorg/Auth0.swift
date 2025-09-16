@@ -225,7 +225,7 @@ final class Auth0WebAuth: WebAuth {
 
         let endpoint = URL(string: "https://api.workos.com/user_management/sessions/logout")!
         let sessionId = URLQueryItem(name: "session_id", value: sessionId)
-        let returnTo = URLQueryItem(name: "returnTo", value: self.redirectURL?.absoluteString)
+        let returnTo = URLQueryItem(name: "return_to", value: self.redirectURL?.absoluteString)
         let clientId = URLQueryItem(name: "client_id", value: self.clientId)
         var components = URLComponents(url: endpoint, resolvingAgainstBaseURL: true)
         let queryItems = components?.queryItems ?? []
