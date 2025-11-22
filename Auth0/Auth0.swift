@@ -48,8 +48,8 @@ public let defaultScope = "openid profile email offline_access"
    - session:  `URLSession` instance used for networking. Defaults to `URLSession.shared`.
  - Returns: Authentication API client.
  */
-public func authentication(clientId: String, domain: String, session: URLSession = .shared) -> Authentication {
-    return Auth0Authentication(clientId: clientId, url: .httpsURL(from: domain), session: session)
+public func authentication(clientId: String, domain: String, userManagementURL: URL, session: URLSession = .shared) -> Authentication {
+    return Auth0Authentication(clientId: clientId, url: .httpsURL(from: domain), userManagementURL: userManagementURL, session: session)
 }
 
 /**
@@ -86,7 +86,7 @@ public func authentication(clientId: String, domain: String, session: URLSession
  */
 public func authentication(session: URLSession = .shared, bundle: Bundle = .main) -> Authentication {
     let values = plistValues(bundle: bundle)!
-    return authentication(clientId: values.clientId, domain: values.domain, session: session)
+    return authentication(clientId: values.clientId, domain: values.domain, userManagementURL: values.userManagementURL, session: session)
 }
 
 /**
@@ -192,7 +192,7 @@ public func users(token: String, domain: String, session: URLSession = .shared) 
  */
 public func webAuth(session: URLSession = .shared, bundle: Bundle = Bundle.main) -> WebAuth {
     let values = plistValues(bundle: bundle)!
-    return webAuth(clientId: values.clientId, domain: values.domain, session: session)
+    return webAuth(clientId: values.clientId, domain: values.domain, userManagementURL: values.userManagementURL, session: session)
 }
 
 /**
@@ -211,12 +211,12 @@ public func webAuth(session: URLSession = .shared, bundle: Bundle = Bundle.main)
    - session:  `URLSession` instance used for networking. Defaults to `URLSession.shared`.
  - Returns: Web Auth client.
  */
-public func webAuth(clientId: String, domain: String, session: URLSession = .shared) -> WebAuth {
-    return Auth0WebAuth(clientId: clientId, url: .httpsURL(from: domain), session: session)
+public func webAuth(clientId: String, domain: String, userManagementURL: URL, session: URLSession = .shared) -> WebAuth {
+    return Auth0WebAuth(clientId: clientId, url: .httpsURL(from: domain), userManagementURL: userManagementURL, session: session)
 }
 #endif
 
-func plistValues(bundle: Bundle) -> (clientId: String, domain: String)? {
+func plistValues(bundle: Bundle) -> (clientId: String, domain: String, userManagementURL: URL)? {
     guard let path = bundle.path(forResource: "Auth0", ofType: "plist"),
           let values = NSDictionary(contentsOfFile: path) as? [String: Any] else {
             print("Missing Auth0.plist file with 'ClientId' and 'Domain' entries in main bundle!")
@@ -228,5 +228,9 @@ func plistValues(bundle: Bundle) -> (clientId: String, domain: String)? {
             print("File currently has the following entries: \(values)")
             return nil
         }
-    return (clientId: clientId, domain: domain)
+    guard let userManagementURL = URL(string: values["UserManagementURL"] as? String ?? "") else {
+        print("Auth0.plist file at \(path) is missing 'UserManagementURL' entry!")
+        return nil
+    }
+    return (clientId: clientId, domain: domain, userManagementURL: userManagementURL)
 }

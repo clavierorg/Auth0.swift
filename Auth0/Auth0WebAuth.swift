@@ -6,6 +6,7 @@ final class Auth0WebAuth: WebAuth {
 
     let clientId: String
     let url: URL
+    let userManagementURL: URL
     let session: URLSession
     let storage: TransactionStore
 
@@ -63,12 +64,14 @@ final class Auth0WebAuth: WebAuth {
 
     init(clientId: String,
          url: URL,
+         userManagementURL: URL,
          session: URLSession = URLSession.shared,
          storage: TransactionStore = TransactionStore.shared,
          telemetry: Telemetry = Telemetry(),
          barrier: Barrier = QueueBarrier.shared) {
         self.clientId = clientId
         self.url = url
+        self.userManagementURL = userManagementURL
         self.session = session
         self.storage = storage
         self.telemetry = telemetry
@@ -223,7 +226,7 @@ final class Auth0WebAuth: WebAuth {
             return callback(.failure(WebAuthError(code: .transactionActiveAlready)))
         }
 
-        let endpoint = URL(string: "https://api.workos.com/user_management/sessions/logout")!
+        let endpoint = self.userManagementURL.appendingPathComponent("sessions").appendingPathComponent("logout")
         let sessionId = URLQueryItem(name: "session_id", value: sessionId)
         let returnTo = URLQueryItem(name: "return_to", value: self.redirectURL?.absoluteString)
         let clientId = URLQueryItem(name: "client_id", value: self.clientId)
@@ -249,8 +252,8 @@ final class Auth0WebAuth: WebAuth {
     func buildAuthorizeURL(withRedirectURL redirectURL: URL,
                            defaults: [String: String],
                            state: String?) throws(WebAuthError) -> URL {
-        guard let authorize = self.overrideAuthorizeURL ?? URL(string: "https://api.workos.com/user_management/authorize"),
-              var components = URLComponents(url: authorize, resolvingAgainstBaseURL: true) else {
+            let authorize = self.overrideAuthorizeURL ?? self.userManagementURL.appendingPathComponent("authorize")
+            guard var components = URLComponents(url: authorize, resolvingAgainstBaseURL: true) else {
             let message = "Unable to build authorize URL with base URL: \(self.url.absoluteString)."
             throw WebAuthError(code: .unknown(message))
         }
@@ -315,6 +318,7 @@ final class Auth0WebAuth: WebAuth {
     private func handler(_ redirectURL: URL) -> OAuth2Grant {
         var authentication = Auth0Authentication(clientId: self.clientId,
                                                  url: self.url,
+                                                 userManagementURL: self.userManagementURL,
                                                  session: self.session,
                                                  telemetry: self.telemetry)
         authentication.dpop = self.dpop

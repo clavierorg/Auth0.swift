@@ -8,6 +8,7 @@ struct Auth0Authentication: Authentication {
 
     let clientId: String
     let url: URL
+    let userManagementURL: URL
     var telemetry: Telemetry
     var logger: Logger?
     var dpop: DPoP?
@@ -15,11 +16,12 @@ struct Auth0Authentication: Authentication {
     let session: URLSession
 
     init(
-        clientId: String, url: URL, session: URLSession = URLSession.shared,
+        clientId: String, url: URL, userManagementURL: URL, session: URLSession = URLSession.shared,
         telemetry: Telemetry = Telemetry()
     ) {
         self.clientId = clientId
         self.url = url
+        self.userManagementURL = userManagementURL
         self.session = session
         self.telemetry = telemetry
     }
@@ -41,7 +43,7 @@ struct Auth0Authentication: Authentication {
         usernameOrEmail username: String, password: String, realmOrConnection realm: String,
         audience: String?, scope: String
     ) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+        let url = self.userManagementURL.appendingPathComponent("authenticate")
 
         var payload: [String: Any] = [
             "username": username,
@@ -67,7 +69,7 @@ struct Auth0Authentication: Authentication {
     func loginDefaultDirectory(
         withUsername username: String, password: String, audience: String?, scope: String
     ) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+        let url = self.userManagementURL.appendingPathComponent("authenticate")
 
         var payload: [String: Any] = [
             "username": username,
@@ -90,7 +92,7 @@ struct Auth0Authentication: Authentication {
     }
 
     func login(withOTP otp: String, mfaToken: String) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+        let url = self.userManagementURL.appendingPathComponent("authenticate")
 
         let payload: [String: Any] = [
             "otp": otp,
@@ -113,7 +115,7 @@ struct Auth0Authentication: Authentication {
     func login(withOOBCode oobCode: String, mfaToken: String, bindingCode: String?) -> Request<
         Credentials, AuthenticationError
     > {
-        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+        let url = self.userManagementURL.appendingPathComponent("authenticate")
 
         var payload: [String: Any] = [
             "oob_code": oobCode,
@@ -140,7 +142,7 @@ struct Auth0Authentication: Authentication {
     func login(withRecoveryCode recoveryCode: String, mfaToken: String) -> Request<
         Credentials, AuthenticationError
     > {
-        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+        let url = self.userManagementURL.appendingPathComponent("authenticate")
 
         let payload: [String: Any] = [
             "recovery_code": recoveryCode,
@@ -275,7 +277,7 @@ struct Auth0Authentication: Authentication {
             scope: String,
             organization: String?
         ) -> Request<Credentials, AuthenticationError> {
-            let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+            let url = self.userManagementURL.appendingPathComponent("authenticate")
             let id = passkey.credentialID.encodeBase64URLSafe()
 
             var authenticatorResponse: [String: Any] = [
@@ -344,7 +346,7 @@ struct Auth0Authentication: Authentication {
             scope: String,
             organization: String?
         ) -> Request<Credentials, AuthenticationError> {
-            let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+            let url = self.userManagementURL.appendingPathComponent("authenticate")
             let id = passkey.credentialID.encodeBase64URLSafe()
 
             var authenticatorResponse: [String: Any] = [
@@ -517,7 +519,7 @@ struct Auth0Authentication: Authentication {
     func renew(withRefreshToken refreshToken: String, audience: String? = nil, scope: String? = nil)
         -> Request<Credentials, AuthenticationError>
     {
-        let oauthToken = URL(string: "https://api.workos.com/user_management/authenticate")!
+        let oauthToken = self.userManagementURL.appendingPathComponent("authenticate")
 
         var payload: [String: Any] = [
             "refresh_token": refreshToken,
@@ -591,7 +593,7 @@ extension Auth0Authentication {
     fileprivate func login(
         username: String, otp: String, realm: String, audience: String?, scope: String
     ) -> Request<Credentials, AuthenticationError> {
-        let url = URL(string: "https://api.workos.com/user_management/authenticate")!
+        let url = self.userManagementURL.appendingPathComponent("authenticate")
 
         var payload: [String: Any] = [
             "username": username,
@@ -626,7 +628,7 @@ extension Auth0Authentication {
         parameters["audience"] = audience
         parameters["scope"] = includeRequiredScope(in: scope)
 
-        let token = URL(string: "https://api.workos.com/user_management/authenticate")!
+        let token = self.userManagementURL.appendingPathComponent("authenticate")
         return Request(
             session: session,
             url: token,
@@ -639,7 +641,7 @@ extension Auth0Authentication {
     }
 
     fileprivate func token<T: Codable>() -> Request<T, AuthenticationError> {
-        let token = URL(string: "https://api.workos.com/user_management/authenticate")!
+        let token = self.userManagementURL.appendingPathComponent("authenticate")
         let payload: [String: Any] = ["client_id": self.clientId]
 
         return Request(
